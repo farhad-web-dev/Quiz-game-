@@ -1,0 +1,354 @@
+```html
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Ultimate Cricket Quiz Showdown</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter & Playfair Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;1,400&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        pitch: {
+                            50: '#f4faf6',
+                            100: '#e3f5eb',
+                            500: '#10b981',
+                            600: '#059669',
+                            900: '#064e3b',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .premium-shadow {
+            box-shadow: 0 20px 40px -15px rgba(16, 185, 129, 0.3);
+        }
+        .dark .premium-shadow {
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7);
+        }
+        .correct-pulse {
+            animation: pulse-green 1.5s infinite;
+        }
+        @keyframes pulse-green {
+            0%, 100% { box-shadow: 0 0 0 0px rgba(16, 185, 129, 0.7); }
+            50% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-[#0d1117] text-slate-800 dark:text-slate-100 min-h-screen transition-colors duration-300 font-sans flex flex-col justify-between">
+
+    <!-- Header & Theme Switcher -->
+    <header class="w-full max-w-5xl mx-auto px-4 py-4 flex justify-between items-center">
+        <div class="flex items-center gap-2">
+            <span class="text-2xl">🏏</span>
+            <span class="font-bold tracking-tight text-xl bg-gradient-to-r from-emerald-500 to-teal-400 bg-clip-text text-transparent">PITCHSHOWDOWN</span>
+        </div>
+        <div class="flex items-center gap-4">
+            <!-- Theme Toggle Button -->
+            <button id="theme-toggle" class="p-2 rounded-full bg-slate-200 dark:bg-slate-800 hover:scale-105 transition-all text-lg" title="Toggle Theme">
+                🌙
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-grow flex items-center justify-center p-4">
+        <div class="w-full max-w-2xl bg-white dark:bg-[#161b22] rounded-2xl border border-slate-200 dark:border-slate-800 premium-shadow p-6 sm:p-8 transition-colors duration-300">
+            
+            <!-- Game Lobby Panel -->
+            <section id="lobby-panel" class="space-y-6">
+                <div class="text-center space-y-2">
+                    <span class="px-3 py-1 text-xs font-semibold bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 rounded-full uppercase tracking-wider">CRICKET ARENA Multiplayer</span>
+                    <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight">Cricket Quiz Showdown</h1>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm max-w-md mx-auto">Go head-to-head with your friend in a fast-paced live cricket trivia challenge. First one to tap the right answer grabs the score!</p>
+                </div>
+
+                <!-- Input Zone -->
+                <div class="space-y-4 pt-4">
+                    <div class="flex flex-col gap-2">
+                        <label for="player-name-input" class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Set Your Nickname</label>
+                        <input type="text" id="player-name-input" placeholder="e.g. Dhoni_Fan_7"
+                               class="w-full p-3.5 rounded-xl bg-slate-100 dark:bg-[#0d1117] border border-slate-200 dark:border-slate-800 text-base font-medium focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all">
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <button id="create-game-btn" class="p-4 rounded-xl font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-600/20 active:scale-95 transition-all flex items-center justify-center gap-2">
+                            <span>➕</span> Create Cricket Lobby
+                        </button>
+                        <div class="flex flex-col gap-2">
+                            <div class="flex gap-2">
+                                <input type="text" id="game-id-input" placeholder="Enter 6-char lobby code"
+                                       class="flex-1 px-3 py-2 rounded-xl bg-slate-100 dark:bg-[#0d1117] border border-slate-200 dark:border-slate-800 uppercase tracking-widest text-center text-sm font-bold focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                                <button id="join-game-btn" class="px-5 py-3 rounded-xl font-bold bg-blue-600 hover:bg-blue-700 text-white active:scale-95 transition-all text-sm">
+                                    Join
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Waiting Lobby Status -->
+                <div id="waiting-lobby" class="hidden p-6 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900 text-center space-y-4">
+                    <div class="animate-pulse text-4xl">🏏</div>
+                    <div>
+                        <p class="text-sm font-medium text-slate-500 dark:text-slate-400">Invite your friend using this Lobby Code</p>
+                        <div class="mt-2 flex items-center justify-center gap-2 bg-white dark:bg-[#0d1117] p-3 rounded-xl border border-slate-200 dark:border-slate-800 w-fit mx-auto shadow-sm">
+                            <span id="lobby-id-display" class="font-mono text-2xl font-bold tracking-wider text-emerald-600 dark:text-emerald-400">------</span>
+                            <button id="copy-lobby-btn" class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all text-sm active:scale-90" title="Copy Code">
+                                📋 Copy
+                            </button>
+                        </div>
+                    </div>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 animate-bounce">Waiting for your friend to enter the pavilion...</p>
+                </div>
+            </section>
+
+            <!-- Quiz Arena Panel -->
+            <section id="quiz-panel" class="hidden space-y-6">
+                <!-- Top Indicator bar -->
+                <div class="flex items-center justify-between">
+                    <!-- Status / Connection status indicator -->
+                    <div class="flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
+                        <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">LIVE MATCH</span>
+                    </div>
+                    
+                    <!-- Round timer circle -->
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm font-semibold text-slate-500 dark:text-slate-400">Timer:</span>
+                        <div id="timer-bar" class="w-10 h-10 rounded-full border-4 border-emerald-500 flex items-center justify-center font-bold text-sm bg-slate-100 dark:bg-slate-800 transition-all">
+                            15
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live Versus Scoreboard and Leaderboard -->
+                <div class="grid grid-cols-2 gap-4 p-4 rounded-xl bg-slate-100 dark:bg-[#0d1117] border border-slate-200 dark:border-slate-800">
+                    <div id="score-p1" class="text-center p-2 rounded-lg bg-white dark:bg-[#161b22] border-b-4 border-emerald-500 shadow-sm">
+                        <div class="text-xs font-semibold text-slate-400 truncate" id="score-p1-name">You</div>
+                        <div class="text-3xl font-black text-emerald-500" id="score-p1-val">0</div>
+                    </div>
+                    <div id="score-p2" class="text-center p-2 rounded-lg bg-white dark:bg-[#161b22] border-b-4 border-slate-400 shadow-sm">
+                        <div class="text-xs font-semibold text-slate-400 truncate" id="score-p2-name">Opponent</div>
+                        <div class="text-3xl font-black text-slate-500 dark:text-slate-400" id="score-p2-val">0</div>
+                    </div>
+                </div>
+
+                <!-- Live Question Box -->
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center">
+                        <span id="question-index-badge" class="px-2.5 py-1 text-xs font-bold bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-md">Question 1 of 5</span>
+                    </div>
+                    <h2 id="question-text" class="text-lg sm:text-xl font-bold leading-snug">Loading delivery...</h2>
+                </div>
+
+                <!-- Interactive MCQ Answer Options -->
+                <div id="options-grid" class="grid grid-cols-1 gap-3">
+                    <!-- Buttons are dynamically appended here -->
+                </div>
+
+                <!-- Live Game Feed & Chat -->
+                <div class="border border-slate-200 dark:border-slate-800 rounded-xl p-4 bg-slate-50 dark:bg-[#0d1117]/50 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Pavilion Chat & Commentary</span>
+                    </div>
+                    <!-- Chat Container scroll element -->
+                    <div id="chat-messages" class="h-32 overflow-y-auto space-y-2 text-xs p-1 scrollbar-thin scrollbar-thumb-slate-300">
+                        <div class="text-slate-400 italic">Match commentator joined the room...</div>
+                    </div>
+                    <!-- Quick Slogans / Chat buttons -->
+                    <div class="flex flex-wrap gap-1.5 pt-1">
+                        <button class="chat-slogan px-2.5 py-1 bg-slate-200 dark:bg-slate-800 hover:bg-emerald-500 hover:text-white dark:hover:bg-emerald-600 rounded-md text-xs font-medium transition-all" data-text="What a shot! 🏏">🏏 What a shot!</button>
+                        <button class="chat-slogan px-2.5 py-1 bg-slate-200 dark:bg-slate-800 hover:bg-emerald-500 hover:text-white dark:hover:bg-emerald-600 rounded-md text-xs font-medium transition-all" data-text="Howzzat?! ☝️">☝️ Howzzat?!</button>
+                        <button class="chat-slogan px-2.5 py-1 bg-slate-200 dark:bg-slate-800 hover:bg-emerald-500 hover:text-white dark:hover:bg-emerald-600 rounded-md text-xs font-medium transition-all" data-text="That is a massive SIX! 🔥">🔥 Massive SIX!</button>
+                        <button class="chat-slogan px-2.5 py-1 bg-slate-200 dark:bg-slate-800 hover:bg-emerald-500 hover:text-white dark:hover:bg-emerald-600 rounded-md text-xs font-medium transition-all" data-text="Excellent Delivery! ⚡">⚡ Good ball!</button>
+                        <button class="chat-slogan px-2.5 py-1 bg-slate-200 dark:bg-slate-800 hover:bg-emerald-500 hover:text-white dark:hover:bg-emerald-600 rounded-md text-xs font-medium transition-all" data-text="Unbelievable drop! 🤦‍♂️">🤦‍♂️ Oh no!</button>
+                    </div>
+                </div>
+
+                <!-- Controls -->
+                <div class="flex items-center justify-end">
+                    <button id="next-delivery-btn" class="hidden px-6 py-3 rounded-xl font-bold bg-emerald-600 hover:bg-emerald-700 text-white text-sm shadow-md active:scale-95 transition-all">
+                        Next Delivery ➔
+                    </button>
+                </div>
+            </section>
+
+            <!-- Game Over / End Screen -->
+            <section id="game-over-panel" class="hidden text-center space-y-6">
+                <div class="text-6xl animate-bounce">🏆</div>
+                <div class="space-y-2">
+                    <h2 class="text-3xl font-extrabold tracking-tight" id="winner-banner">Match Finished!</h2>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm">The scorecard has been officially locked.</p>
+                </div>
+
+                <!-- Final Scoreboard -->
+                <div class="p-6 rounded-2xl bg-slate-100 dark:bg-[#0d1117] border border-slate-200 dark:border-slate-800 space-y-4">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Final Leaderboard</h3>
+                    <div id="leaderboard-list" class="space-y-2">
+                        <!-- Placed dynamic ranks here -->
+                    </div>
+                </div>
+
+                <button id="restart-to-lobby-btn" class="w-full p-4 rounded-xl font-bold bg-emerald-600 hover:bg-emerald-700 text-white transition-all shadow-lg active:scale-95">
+                    Return to Pavilion
+                </button>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Error/Notice Display toast box -->
+    <div id="toast-notif" class="fixed bottom-6 right-6 px-4 py-3 bg-red-600 text-white rounded-xl shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 text-sm font-medium z-50 flex items-center gap-2">
+        <span>⚠️</span> <span id="toast-text">An error has occurred.</span>
+    </div>
+
+    <footer class="text-center py-6 text-xs text-slate-400">
+        Playing ID: <span id="footer-client-id" class="font-mono">Connecting...</span>
+    </footer>
+
+    <!-- Firebase System Modules -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, onSnapshot, runTransaction, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // --- GAME SOUND SYNTHESIZER ---
+        // Generates native real-time audio triggers without external files
+        class SoundEngine {
+            constructor() {
+                this.ctx = null;
+            }
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            }
+            playTicking() {
+                this.init();
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(800, this.ctx.currentTime);
+                gain.gain.setValueAtTime(0.05, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.1);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.1);
+            }
+            playCorrect() {
+                this.init();
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(523.25, now); // C5
+                osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
+                osc.frequency.setValueAtTime(783.99, now + 0.2); // G5
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(now + 0.4);
+            }
+            playIncorrect() {
+                this.init();
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(150, now);
+                osc.frequency.setValueAtTime(100, now + 0.15);
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(now + 0.4);
+            }
+            playWin() {
+                this.init();
+                const now = this.ctx.currentTime;
+                // Simple happy major chord arpeggio
+                const frequencies = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99];
+                frequencies.forEach((freq, idx) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, now + (idx * 0.1));
+                    gain.gain.setValueAtTime(0.1, now + (idx * 0.1));
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + (idx * 0.1) + 0.5);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(now + (idx * 0.1));
+                    osc.stop(now + (idx * 0.1) + 0.5);
+                });
+            }
+        }
+        const sfx = new SoundEngine();
+
+        // --- TRIVIA BANK ---
+        const QUESTIONS = [
+            {
+                q: "Who is known as the 'God of Cricket'?",
+                options: ["Ricky Ponting", "Sachin Tendulkar", "Brian Lara", "Virat Kohli"],
+                a: "Sachin Tendulkar"
+            },
+            {
+                q: "What is the maximum number of overs in a standard T20 match?",
+                options: ["50", "20", "40", "10"],
+                a: "20"
+            },
+            {
+                q: "Which country won the inaugural T20 World Cup in 2007?",
+                options: ["Australia", "India", "Pakistan", "West Indies"],
+                a: "India"
+            },
+            {
+                q: "In which year did the first ever Cricket World Cup take place?",
+                options: ["1971", "1975", "1983", "1992"],
+                a: "1975"
+            },
+            {
+                q: "What is the name of the dismissal where the batsman hits his own wicket?",
+                options: ["Run Out", "Stumped", "Hit Wicket", "Caught Behind"],
+                a: "Hit Wicket"
+            },
+            {
+                q: "Who bowled the fastest delivery ever recorded in international cricket?",
+                options: ["Brett Lee", "Shoaib Akhtar", "Shaun Tait", "Mitchell Starc"],
+                a: "Shoaib Akhtar"
+            },
+            {
+                q: "Which ground is traditionally referred to as 'The Home of Cricket'?",
+                options: ["Melbourne Cricket Ground", "The Oval", "Eden Gardens", "Lord's"],
+                a: "Lord's"
+            }
+        ];
+
+        // --- APP STATE VARIABLES ---
+        let db, auth;
+        let userId = null;
+        let gameId = null;
+        let isHost = false;
+        let syncUnsubscribe = null;
+        let currentTimerValue = 15;
+        let timerInterval = null;
+        let timerTickCount = 0;
+
+        // Firestore paths setup (Rule 1 compliance)
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-cricket-id';
+        co
